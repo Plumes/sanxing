@@ -1,0 +1,157 @@
+body {
+ top:0px;
+ margin: 0px;
+ padding: 0px;
+ overflow-y:scroll;
+}
+.modal-open .modal,.btn:focus{outline:none;}
+#signin-wrapper a,#signin-wrapper a:hover {
+	color: #444;
+	text-decoration: none;
+}
+#index-bg {
+	position: fixed;
+	padding-top: 150px;
+	width: 100%;
+	margin:0px auto;
+	background-image: url("../img/bg.jpg");
+	background-size: cover;
+	background-repeat:no-repeat;
+}
+#index-wrapper {
+	width: 900px;
+	height:500px;
+	margin:0px auto;
+}
+#slogan {
+	float: left;
+	width: 300px;
+	font-size: 22px;
+	font-family: "Lucida Grande", "Lucida Sans Unicode", Helvetica, Arial, Verdana, sans-serif;
+}
+#signin-wrapper {
+	float:right;
+	width:300px;
+	overflow: hidden;
+}
+.form-title {
+	font-size: 16px;
+	line-height: 20px;
+	margin-bottom: 10px;
+}
+.next-form {
+	float: right;
+	font-size: 16px;
+	line-height: 20px;
+	margin-bottom: 10px;
+}
+#signin-wrapper form {
+	vertical-align: top;
+	top:0px;
+	right:0px;
+	height: 500px;
+	width: 200px;
+	margin:0px 50px 0px 50px;
+}
+
+#signin-wrapper form input {
+	width: 200px;
+	font-size: 16px;
+	line-height: 20px;
+	height: 40px;
+	margin-bottom: 10px;
+	display: block;
+}
+#container {
+	padding: 0 15px;
+}
+#menu-wrapper {
+	position: absolute;
+	left: 0px;
+	top: 0px;
+	bottom: 0px;
+	margin: 0px;
+	width:200px;
+	color:#eee;	
+	background-color: #333;
+	padding: 20px 0px 0px 0px;
+	cursor: default;
+
+}
+#user-info {
+	width:100px;
+	margin: 0px auto;
+}
+#user-icon {
+	width: 80px;
+	height: 80px;
+	margin: 0px auto;
+}
+#user-icon img{
+	max-width: 80px;
+	max-height: 80px;
+	
+}
+
+#list-wrapper {
+	margin-top: 20px;
+	width:100%;
+}
+.list-btn {
+	background-color: #000;
+	font-size: 18px;
+	line-height: 50px;
+	height:50px;
+}
+.list-btn .tail {
+	float: right;
+	top: 16px;
+	right: 15px;
+	-moz-transform:rotate(0deg),
+    -webkit-transform:rotate(0deg),
+    -o-transform:rotate(0deg),
+    -ms-transform:rotate(0deg),
+    transform: rotate(0deg);
+}
+.mylist ul{
+	display:block;
+	width: 100%;
+	padding-left: 0px;
+	font-size: 16px;
+	list-style: none;
+}
+.mylist ul li {
+	border-bottom: 1px solid #eee;
+	padding-left: 60px;
+	line-height: 40px;
+	height:40px;
+	
+}
+.list-item a,.list-item a:hover{
+	color: #eee;
+	text-decoration: none;
+}
+.list-item > .glyphicon.glyphicon-remove{
+	display: none;
+	float: right;
+	top:15px;
+	right:15px;
+}
+
+#content-wrapper {
+	margin-top: 20px;
+	margin-left:200px;
+
+}
+.today-wrapper,.today-wrapper > .panel-heading {
+	border-radius: 0px;
+}
+#new-goal > .input-group {
+	margin-bottom: 10px;
+}
+.input-group-addon.glyphicon {
+	top:0px;
+}
+.datepicker {
+	z-index: 1051;
+}
