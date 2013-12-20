@@ -6,6 +6,8 @@
 		header('Location: ./');
 	}
 	$uid=$_SESSION['uid'];
+	$gid = $_GET['goal_id'];
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -27,8 +29,8 @@
 					<div class="list-btn"><? echo $_SESSION['uname'];?><span class="tail glyphicon glyphicon-chevron-down"></span></div>
 					<div class="mylist">
 						<ul>
-							<li class="list-item"><a href="setting.php">修改设置</a></li>
-							<li class="list-item"><a href="#" onclick="logout();">注销</a></li>
+							<!-- <li class="list-item"><a href="setting.php">修改设置</a></li> -->
+							<li class="list-item"><a href="logout.php">注销</a></li>
 						</ul>
 					</div>
 				
@@ -42,30 +44,63 @@
 								$result = $mysqli->query($sql);
 								while($row = $result->fetch_array(MYSQLI_ASSOC) )
 								{
-									$gid = $row['id'];
-									echo "<li class=list-item><a href=\"?goal_id=".$gid."\">".$row['name'].
-									"</a> <span class=\"glyphicon glyphicon-remove del-goal-btn\" value=\"$gid\"  ></span> </li>";
+									$tid = $row['id'];
+									if(!isset($gid)) {$gid=$tid;}
+									if ($gid === $tid) echo "<li class=\"list-item list-selected\" ><a href=\"?goal_id=".$tid."\">".$row['name'];
+									else echo "<li class=list-item><a href=\"?goal_id=".$tid."\">".$row['name'];
+									echo "</a> <span class=\"glyphicon glyphicon-remove del-goal-btn\" value=\"$tid\"  ></span> </li>";
 								}
-							
+								$result->close();
 							?>
 						</ul>
 					</div>
-					<div class="list-btn" id="add-list" data-toggle="modal" data-target="#myModal">增加目标</div>
+					<div class="list-btn" id="add-list" data-toggle="modal" data-target="#add-goal-modal">增加目标</div>
+					<div class="list-btn" id="report-job" data-toggle="modal" data-target="#report-job-modal">今日任务</div>
 				</div>
 			</div>
 			<div id="content-wrapper">
-				<div class="panel panel-primary today-wrapper">
-				<div class="panel-heading">今日需要完成的任务</div>
-				<div class="panel-body">
-					<form id="today-list">
-						<p><input type="checkbox">背单词</p>
-						<p><input type="checkbox">背单词2</p>
-					</form>
+				<div id="page-title">
+					<?php
+						$sql = "SELECT * FROM `goal_list` WHERE `uid`=$uid AND `id`=$gid ";
+						$result = $mysqli->query($sql);
+						$row = $result->fetch_array(MYSQLI_ASSOC);
+						echo '<p id="gname">'.$row['name'].'</p>';
+						echo '开始时间: <a id="stime">'.$row['start'].'</a>';
+						echo '截止时间: <a id="etime">'.$row['end'].'</a>';
+						echo '间隔时间: <a id="itime">'.$row['interval'].' 天</a>';
+						$result->close();
+						$d = date_format(date_create(Date()), "m-d-Y");
+						//echo $d."<br>";	
+						$d_arr = explode("-",$d);
+						
+					?>
+					
 				</div>
-				</div>
+				<div id="calendar-wrapper">
+					
+					<div id="date-selector">
+						<span class="glyphicon glyphicon-circle-arrow-left" id="prev-month"></span>
+						<a id="year"><? echo $d_arr[2]; ?></a> 年<a id="month"> <? echo $d_arr[0]; ?></a> 月
+						<span class="glyphicon glyphicon-circle-arrow-right" id="next-month"></span>
+					</div>
+					
+					<table id="list-calendar">
+					<tr>
+						<th>星期日</th>
+						<th>星期一</th>
+						<th>星期二</th>
+						<th>星期三</th>
+						<th>星期四</th>
+						<th>星期五</th>
+						<th>星期六</th>
+					</tr>
+
+						
+					</table>
+				</div>	
 			</div>
-			<!-- Modal -->
-	<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+			<!--  add goal Modal -->
+	<div class="modal fade" id="add-goal-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" >
 	  <div class="modal-dialog">
 	    <div class="modal-content">
 	      <div class="modal-header">
@@ -100,16 +135,105 @@
 	      </div>
 	    </div>
 	  </div>
-	</div>
-		</div>
+	</div> 
+	<!--  add goal Modal ends -->
+	<!--  report job Modal -->
+<div class="modal fade" id="report-job-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true"  >
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">今天需要完成的任务</h4>
+      </div>
+      <div class="modal-body">
+        <form id="today-job-form">
+        	<?php
+        		$sql = "SELECT * FROM `goal_list` WHERE `uid`=$uid ";
+        		$_SESSION['today_job'] = array();
+        		if ($result = $mysqli->query($sql)){
+        			while ($row = $result->fetch_array(MYSQLI_ASSOC)){
+        				//选出所有属于该用户的goal_id
+        				//print_r($row);
+        				$sday = $row['start'];$sday = explode("-", $sday);$sday = GregorianToJD($sday[1], $sday[2], $sday[0]);
+        				$eday = $row['end'];$eday = explode("-", $eday);$eday = GregorianToJD($eday[1], $eday[2], $eday[0]);
+        				$today = GregorianToJD(Date('m'), Date('d'), Date('Y'));
+        				//将数据库中的日期转换为 Julian 天数
+        				$m_gid = $row['id'];$m_name=$row['name'];
+        				if ($today >= $sday && $today <= $eday) {
 
+        					if (($today-$sday)%(((int)$row['interval'])+1) === 0){
+        						//检查今天是否需要完成该目标事件
+        						//echo $row['interval'];
+        						$sql = "SELECT * FROM `calendar` WHERE `goal_id`=".$row['id']." AND `year`=".Date('Y'). 
+        						" AND `month`=".Date('m')." AND `day`=".Date('d');
+        						$result2 = $mysqli->query($sql);
+        						//echo $sql;
+        						if ($result2->num_rows == 0){
+        							array_push($_SESSION['today_job'],$m_gid);
+        							echo "<div class=job-item> <input type=checkbox name=today-job[] value=$m_gid><label>".$m_name."</lable></div>";
+        						}
+        					}
+        				}
+        			}
+
+        		}
+        		$result->close();$result2->close();$mysqli->close();
+        	?>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+        <button type="button" class="btn btn-primary" id="report-job-btn">所选任务已完成</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!--  report job Modal ends-->
+		</div>
 	</div>
 	
 </body>
+<script src="./static/js/fill-calendar.js"></script>
 <script>
-	var now_deg=0;
+	var today = new Date();
+	get_calendar(<? echo $gid.',' ?> today.getFullYear(),today.getMonth()+1);
+	$("#prev-month").click(function(){
+		var year = parseInt($("#year").text());
+		var month = parseInt($("#month").text())-1;
+		if(month===0) {
+			month = 12;
+			year -= 1;
+			$("#year").text(String(year));
+		}
+		$("#month").text(String(month));
+		$("tr[id*='week']").remove();
+		get_calendar(<? echo $gid.',' ?> year,month);
+	});
+	$("#next-month").click(function(){
+		var year = parseInt($("#year").text());
+		var month = parseInt($("#month").text())+1;
+		if(month===13) {
+			month = 1;
+			year += 1;
+			$("#year").text(String(year));
+		}
+		$("#month").text(String(month));
+		$("tr[id*='week']").remove();
+		get_calendar(<? echo $gid.',' ?> year,month);
+	});
+	
 	$(".list-btn").click(function(){
 		$($(this).next(".mylist")).slideToggle();
+		var str="";
+		if ($($(this).children("span")).attr("style"))
+		{
+			str = $($(this).children("span")).attr("style");
+		}
+		var now_deg = 0;
+		if (str.length > 0){
+			str = str.split("(");
+			now_deg = parseInt(str[1]);
+		}
 		now_deg = 90 - now_deg;
 		$($(this).children("span")).css({
           '-moz-transform':'rotate('+now_deg+'deg)',
@@ -178,5 +302,31 @@
 	    });
 
 	});
+	$("#report-job-btn").click(function(){
+		var check_arr = $("#today-job-form>.job-item>.checked>input");
+		var res_arr = new Array();
+		for(var i=0;i<check_arr.length;i++)
+		{
+			res_arr.push(parseInt(check_arr[i].value));
+		}
+		//res_arr.push(1000);
+		console.log(res_arr);
+		var posting = $.post("report_job.php",{"res_arr[]":res_arr});
+		posting.done( function(str){
+	    	data = JSON.parse(str);
+	    	//console.log(data['msg']);
+		//if(data['res'] === 0) {
+	    		location.href="./";
+	    	//}
+	    });
+	});
+
+	$(document).ready(function(){
+  $('input').iCheck({
+    checkboxClass: 'icheckbox_square-blue',
+    radioClass: 'iradio_square-blue',
+    increaseArea: '20%' // optional
+  });
+});
 </script>
 </html>

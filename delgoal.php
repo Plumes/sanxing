@@ -14,7 +14,11 @@
 	if($result = $mysqli->query($sql))
 	{
 		$check_res = 0;
+		$sql = "DELETE FROM `calendar` WHERE `goal_id`=$gid ";
+		$result = $mysqli->query($sql);
 	}
+	$result->close();
+	$mysqli->close();
 	$res_arr = array('res'=>$check_res,'msg'=>"");
 	echo json_encode($res_arr);
 
